@@ -1,0 +1,13 @@
+{
+  "name": "diario-de-sessao",
+  "displayName": "Diário de sessão",
+  "version": "1.0.0",
+  "description": "Grava ao fim de cada sessão um diário em Markdown (arquivos alterados, commits, decisões, pendências e custo) e retoma o trabalho com /retomar.",
+  "author": {
+    "name": "Rodrigo Brito"
+  },
+  "homepage": "https://github.com/britors/diario-de-sessao",
+  "repository": "https://github.com/britors/diario-de-sessao",
+  "license": "GPL-3.0-only",
+  "keywords": ["diario", "sessao", "retomar", "custo", "hooks"]
+}

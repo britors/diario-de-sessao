@@ -1,0 +1,16 @@
+{
+  "name": "diario-de-sessao",
+  "owner": {
+    "name": "Rodrigo Brito"
+  },
+  "metadata": {
+    "description": "Plugin que registra o diário de cada sessão do Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "diario-de-sessao",
+      "source": "./",
+      "description": "Grava ao fim de cada sessão um diário em Markdown (arquivos alterados, commits, decisões, pendências e custo) e retoma o trabalho com /retomar."
+    }
+  ]
+}
