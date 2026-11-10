@@ -1,3 +1,7 @@
+<p align="center">
+  <img src=".claude-plugin/icon.svg" alt="Ícone do diario-de-sessao: um caderno com marcador" width="128">
+</p>
+
 # diario-de-sessao
 
 [Português](#português) · [English](#english)
@@ -68,7 +72,15 @@ Para rodar os testes: `python3 -m unittest discover -s tests`.
 
 Logs are stored in `~/.claude/diario-de-sessao/<project>/`, outside your repository. In the next session, `/retomar` reads the latest log for the project, checks `git status` and tells you what was done, what is pending and the suggested next step.
 
-Install with `/plugin install diario-de-sessao --marketplace britors/diario-de-sessao`.
+Install:
+
+```
+/plugin install diario-de-sessao --marketplace britors/diario-de-sessao
+```
+
+On older versions, run `/plugin marketplace add britors/diario-de-sessao` and then `/plugin install diario-de-sessao@diario-de-sessao`.
+
+Usage: type `/retomar` at the start of a session to pick up where you left off. To note a decision or a pending item, just ask Claude.
 
 ## Licença / License
 
