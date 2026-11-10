@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -153,6 +154,31 @@ class Diario(unittest.TestCase):
                            cwd=sub, env={**os.environ, "HOME": str(self.home)})
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertTrue(r.stdout.strip().endswith(f"_{SID[:8]}.md"))
+
+    def workspace_com_subrepo(self):
+        """Pasta sem git (onde a sessão começou) com um repositório dentro, para onde a sessão fez `cd`."""
+        ws = Path(self.tmp.name) / "ws"
+        sub = ws / "sub"
+        sub.mkdir(parents=True)
+        subprocess.run(["git", "init", "-q"], cwd=sub, check=True)
+        transcricao = self.home / ".claude" / "projects" / re.sub(r"[^A-Za-z0-9]", "-", str(ws)) / f"{SID}.jsonl"
+        transcricao.parent.mkdir(parents=True)
+        self.escrever([usuario("oi", cwd=str(ws)), assistente("m1", [])], transcricao)
+        return ws, sub, transcricao
+
+    def rodar_em(self, pasta, *args, entrada=None):
+        return subprocess.run([sys.executable, str(SCRIPT), *args], input=entrada, capture_output=True, text=True,
+                              cwd=pasta, env={**os.environ, "HOME": str(self.home)})
+
+    def test_cd_para_subrepo_nao_muda_o_projeto(self):
+        ws, sub, transcricao = self.workspace_com_subrepo()
+        self.assertEqual(self.rodar_em(sub, "anotar", "decisao", "Depois do cd").returncode, 0)
+        dados = {"session_id": SID, "transcript_path": str(transcricao), "cwd": str(sub), "reason": "exit"}
+        self.assertEqual(self.rodar_em(sub, "gravar", entrada=json.dumps(dados)).returncode, 0)
+        r = self.rodar_em(ws, "ultimo")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("Depois do cd", r.stdout)
+        self.assertFalse((self.home / ".claude" / "diario-de-sessao" / re.sub(r"[^A-Za-z0-9]", "-", str(sub))).exists())
 
     def test_lembrete(self):
         r = self.rodar("lembrete", entrada=json.dumps({"cwd": str(self.repo)}))

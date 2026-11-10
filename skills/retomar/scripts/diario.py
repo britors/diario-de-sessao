@@ -53,8 +53,35 @@ def raiz(cwd):
     return Path(topo.strip()) if topo else Path(cwd).resolve()
 
 
+def codificar(caminho):
+    return re.sub(r"[^A-Za-z0-9]", "-", str(caminho))
+
+
+def cwd_inicial(transcricao, padrao):
+    """Pasta em que a sessão começou: o primeiro cwd do transcript. O cwd do hook segue os `cd` da sessão."""
+    for d in ler_jsonl(transcricao):
+        if d.get("cwd"):
+            return d["cwd"]
+    return padrao
+
+
+def cwd_da_sessao(cwd):
+    """Pasta em que a sessão ativa começou, para anotar, ultimo e listar rodados de uma subpasta após `cd`.
+
+    Procura em ~/.claude/projects a pasta atual e as de cima; vence a que tem o transcript mais recente.
+    """
+    cwd = Path(cwd).resolve()
+    melhor = None
+    for pasta in (cwd, *cwd.parents):
+        for t in (PROJETOS / codificar(pasta)).glob("*.jsonl"):
+            mt = t.stat().st_mtime
+            if melhor is None or mt > melhor[0]:
+                melhor = (mt, pasta)
+    return melhor[1] if melhor else cwd
+
+
 def pasta_projeto(cwd):
-    return PASTA / re.sub(r"[^A-Za-z0-9]", "-", str(raiz(cwd)))
+    return PASTA / codificar(raiz(cwd))
 
 
 def diarios(cwd):
@@ -330,10 +357,10 @@ def encurtar_linhas(texto):
 
 def gravar(dados):
     sid = dados.get("session_id")
-    cwd = dados.get("cwd") or "."
     transcricao = Path(dados.get("transcript_path") or "")
     if not sid or not transcricao.is_file():
         return None
+    cwd = cwd_inicial(transcricao, dados.get("cwd") or ".")
     resultado = montar(sid, cwd, transcricao, dados.get("reason", ""))
     if not resultado:
         return None
@@ -383,7 +410,7 @@ def main():
             print(lembrete(dados.get("cwd") or "."))
         return
 
-    cwd = Path.cwd()
+    cwd = cwd_da_sessao(Path.cwd())
     if a.cmd == "anotar":
         anotar(cwd, a.tipo, " ".join(a.texto))
         print(f"Anotado: {a.tipo}.")

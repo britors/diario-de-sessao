@@ -1,7 +1,7 @@
 {
   "name": "diario-de-sessao",
   "displayName": "Diário de sessão",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Grava ao fim de cada sessão um diário em Markdown (arquivos alterados, commits, decisões, pendências e custo) e retoma o trabalho com /retomar.",
   "author": {
     "name": "Rodrigo Brito"
